@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "duplexer": "^0.1.1",
+    "exceljs": "^0.2.41",
+    "sheetjs": "^1.0.21",
+    "through2": "^2.0.3",
+    "unzip": "^0.1.11",
+    "xlsx": "^0.8.2",
+    "xml-stream": "^0.4.5"
+  },
+  "devDependencies": {
+    "superagent": "^3.4.1"
+  }
+}
