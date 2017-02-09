@@ -41,4 +41,12 @@ file
 ```
 
 
+### Options
+
+##### objectMode
+
+> Enable [objectMode](https://nodejs.org/api/stream.html#stream_object_mode)
+
+default: true
+
 ## [License](LICENSE) (MIT)

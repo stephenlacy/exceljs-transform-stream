@@ -2,9 +2,14 @@ var Excel = require('exceljs')
 var through = require('through2')
 var duplex = require('duplexify')
 
-module.exports = function exceljsStream() {
+var defaultOpts = {
+  objectMode: true
+}
+
+module.exports = function exceljsStream(opts) {
+  opts = opts || defaultOpts
   var input = through()
-  var second = through()
+  var second = through({ objectMode: opts.objectMode })
   var workbook = new Excel.Workbook()
 
   var headers = null
@@ -21,7 +26,11 @@ module.exports = function exceljsStream() {
            if (!headers) return
           item[headers[k]] = v
         })
-        second.push(JSON.stringify(item))
+        if (!opts.objectMode) {
+          second.push(JSON.stringify(item))
+          return
+        }
+        second.push(item)
       })
     })
     second.emit('end')

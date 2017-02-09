@@ -17,7 +17,26 @@ describe('exceljs-through-stream', function () {
     var res = []
     file.pipe(exs())
       .on('data', function (d) {
-        res.push(JSON.parse(String(d)))
+        res.push(d)
+      })
+      .on('end', function () {
+        should(res.length).equal(4)
+        should(JSON.stringify(res[0])).equal(
+        JSON.stringify({
+          row: 'row1',
+          date: '2017-02-08T00:00:00.000Z',
+          cost: 100,
+          notes: 111
+        }))
+        done()
+      })
+  })
+  it('parse xlsx files with string mode', function (done) {
+    var file = fs.createReadStream(__dirname + '/file.xlsx')
+    var res = []
+    file.pipe(exs({ objectMode: false }))
+      .on('data', function (d) {
+        res.push(JSON.parse(d))
       })
       .on('end', function () {
         should(res.length).equal(4)
