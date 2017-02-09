@@ -12,17 +12,19 @@ module.exports = () => {
   .then((worksheet) => {
     workbook.eachSheet((sheet, id) => {
       sheet.eachRow((row, id) => {
-        if (id === 1) {
+        if (id === 1 || !headers) {
           headers = row.values
           return
         }
         let item = {}
         row.values.forEach((v, k) => {
+           if (!headers) return
           item[headers[k]] = v
         })
         second.push(JSON.stringify(item))
       })
     })
+    second.emit('end')
   })
   return duplex.obj(input, second)
 }

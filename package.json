@@ -1,14 +1,34 @@
 {
+  "name": "exceljs-transform-stream",
+  "description": "Parse XLSX files as a through stream to exceljs",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevelacy/exceljs-transform-stream.git"
+  },
+  "scripts": {
+    "test": "mocha test/"
+  },
+  "author": "Steve Lacy <me@slacy.me> (http://slacy.me)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stevelacy/exceljs-transform-stream/issues"
+  },
+  "homepage": "https://github.com/stevelacy/exceljs-transform-stream#readme",
   "dependencies": {
-    "duplexer": "^0.1.1",
+    "duplexify": "^3.5.0",
     "exceljs": "^0.2.41",
-    "sheetjs": "^1.0.21",
-    "through2": "^2.0.3",
-    "unzip": "^0.1.11",
-    "xlsx": "^0.8.2",
-    "xml-stream": "^0.4.5"
+    "through2": "^2.0.3"
   },
   "devDependencies": {
-    "superagent": "^3.4.1"
-  }
+    "mocha": "^3.2.0",
+    "should": "^11.2.0"
+  },
+  "keywords": [
+    "stream",
+    "xlsx",
+    "exceljs",
+    "transform",
+    "convert"
+  ]
 }
