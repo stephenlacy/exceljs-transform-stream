@@ -1,9 +1,11 @@
 const Excel = require('exceljs')
 const through = require('through2')
+const duplex = require('duplexify')
 const Stream = require('stream')
 const readable = new Stream.Readable()
 
-module.exports = (input) => {
+module.exports = () => {
+  const input = through()
   const workbook = new Excel.Workbook()
   readable._read = () => {
     let headers = null
@@ -25,5 +27,5 @@ module.exports = (input) => {
       readable.push(null)
     })
   }
-  return readable
+  return duplex(input, readable)
 }
