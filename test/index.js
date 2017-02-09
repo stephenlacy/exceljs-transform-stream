@@ -1,25 +1,25 @@
-const fs = require('fs')
-const should = require('should')
-const stream = require('stream')
-const exs = require('..')
+var fs = require('fs')
+var should = require('should')
+var stream = require('stream')
+var exs = require('..')
 
-describe('exceljs-through-stream', () => {
-  it('should export a function', (done) => {
+describe('exceljs-through-stream', function () {
+  it('should export a function', function (done) {
     should(typeof exs).equal('function')
     done()
   })
-  it('should export a function that returns a stream', (done) => {
+  it('should export a function that returns a stream', function (done) {
     should(exs() instanceof stream)
     done()
   })
-  it('parse xlsx files', (done) => {
-    const file = fs.createReadStream(__dirname + '/file.xlsx')
-    const res = []
+  it('parse xlsx files', function (done) {
+    var file = fs.createReadStream(__dirname + '/file.xlsx')
+    var res = []
     file.pipe(exs())
-      .on('data', (d) => {
+      .on('data', function (d) {
         res.push(JSON.parse(String(d)))
       })
-      .on('end', () => {
+      .on('end', function () {
         should(res.length).equal(4)
         should(JSON.stringify(res[0])).equal(
         JSON.stringify({
