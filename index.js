@@ -18,13 +18,13 @@ module.exports = function exceljsStream(opts) {
     workbook.eachSheet(function (sheet, id) {
       sheet.eachRow(function (row, id) {
         if (id === 1 || !headers) {
-          headers = row.values
+          headers = opts.mapHeaders ? row.values.map(opts.mapHeaders) : row.values
           return
         }
         var item = {}
         row.values.forEach(function (v, k) {
            if (!headers) return
-          item[headers[k]] = v
+          item[headers[k]] = opts.mapValues ? opts.mapValues(v) : v
         })
         if (!opts.objectMode) {
           second.push(JSON.stringify(item))
