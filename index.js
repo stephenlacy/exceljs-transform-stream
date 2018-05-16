@@ -7,7 +7,7 @@ var defaultOpts = {
 }
 
 module.exports = function exceljsStream(opts) {
-  opts = opts || defaultOpts
+  opts = Object.assign(defaultOpts, opts)
   var input = through()
   var second = through({ objectMode: opts.objectMode })
   var workbook = new Excel.Workbook()
