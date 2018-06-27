@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/stevelacy/exceljs-transform-stream#readme",
   "dependencies": {
-    "duplexify": "^3.5.0",
-    "exceljs": "^0.2.41",
+    "duplexify": "^3.6.0",
+    "exceljs": "^1.5.1",
     "through2": "^2.0.3"
   },
   "devDependencies": {
