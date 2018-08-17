@@ -35,5 +35,9 @@ module.exports = function exceljsStream(opts) {
     })
     second.emit('end')
   })
+    .catch((err) => {
+      second.emit('error', err)
+      second.end()
+    })
   return duplex.obj(input, second)
 }
