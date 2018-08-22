@@ -54,7 +54,7 @@ describe('exceljs-through-stream', function () {
     var file = fs.createReadStream(__dirname + '/index.js')
     file.pipe(exs({ objectMode: false }))
       .on('error', function (e) {
-        should(e.message).equal("Can't find end of central directory : is this a zip file ? If it is, see http://stuk.github.io/jszip/documentation/howto/read_zip.html")
+        should(e.message).equal('Legacy XLS files are not supported, use an XLSX file instead!')
         done()
       })
   })

@@ -33,11 +33,13 @@ module.exports = function exceljsStream(opts) {
         second.push(item)
       })
     })
-    second.emit('end')
+    second.end()
   })
     .catch((err) => {
+      if (err.message && err.message.indexOf('is this a zip') !== -1) {
+        err = new Error('Legacy XLS files are not supported, use an XLSX file instead!')
+      }
       second.emit('error', err)
-      second.end()
     })
   return duplex.obj(input, second)
 }
