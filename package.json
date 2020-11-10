@@ -1,6 +1,6 @@
 {
   "name": "exceljs-transform-stream",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Parse excel (XLSX) files as a through stream to JSON using exceljs",
   "main": "index.js",
   "repository": {
@@ -8,7 +8,8 @@
     "url": "git+https://github.com/stevelacy/exceljs-transform-stream.git"
   },
   "scripts": {
-    "test": "mocha test/"
+    "test": "mocha test",
+    "lint": "eslint index.js test --fix"
   },
   "author": "Steve Lacy <me@slacy.me> (http://slacy.me)",
   "license": "MIT",
@@ -24,6 +25,7 @@
     "through2": "^4.0.0"
   },
   "devDependencies": {
+    "@stae/linters": "^1.1.0",
     "get-stream": "^6.0.0",
     "mocha": "^8.0.0",
     "should": "^13.0.0"
