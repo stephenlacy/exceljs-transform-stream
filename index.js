@@ -4,6 +4,9 @@ const through = require('through2')
 const duplex = require('duplexify')
 const { pipeline, Readable } = require('readable-stream')
 
+const matchSelector = (selector, worksheet) =>
+  selector.includes('*') || selector.includes(worksheet.name)
+
 const handleError = (stream, err) => {
   if (!err) return
   if (err.message && err.message.indexOf('invalid signature') !== -1) {
@@ -12,7 +15,7 @@ const handleError = (stream, err) => {
   stream.emit('error', err)
 }
 
-module.exports = ({ mapHeaders, mapValues, selector } = {}) => {
+module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
   if (selector && !Array.isArray(selector)) selector = [ selector ]
   const input = through()
   const reader = new Excel.stream.xlsx.WorkbookReader(input, {
@@ -24,7 +27,7 @@ module.exports = ({ mapHeaders, mapValues, selector } = {}) => {
   })
   const createReader = async function* () {
     for await (const worksheet of reader) {
-      if (selector && !selector.includes(worksheet.name)) continue
+      if (!matchSelector(selector, worksheet)) continue
       for await (const row of worksheet) {
         yield row
       }
@@ -67,10 +70,12 @@ module.exports.getSelectors = () => {
     }
   }
   // just wrapping to map errors
+  const mid = through.obj()
   const out = pipeline(
     Readable.from(createReader()),
-    through.obj(),
+    mid,
     (err) => handleError(out, err)
   )
+  process.nextTick(() => mid.push('*'))
   return duplex.obj(input, out)
 }

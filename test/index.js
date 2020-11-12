@@ -70,12 +70,12 @@ describe('exceljs-transform-stream#getSelectors', () => {
   it('parse xlsx files', async () => {
     const file = fs.createReadStream(`${__dirname}/file.xlsx`)
     const res = await collect.array(file.pipe(parse.getSelectors()))
-    should(res).eql([ 'Sheet1' ])
+    should(res).eql([ '*', 'Sheet1' ])
   })
   it('parse larger xlsx files', async () => {
     const file = fs.createReadStream(`${__dirname}/larger-file.xlsx`)
     const res = await collect.array(file.pipe(parse.getSelectors()))
-    should(res).eql([ 'Sheet1' ])
+    should(res).eql([ '*', 'Sheet1' ])
   })
   it('return error if file is invalid', (done) => {
     const file = fs.createReadStream(`${__dirname}/index.js`)
