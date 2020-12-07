@@ -9,6 +9,7 @@ const matchSelector = (selector, worksheet) =>
 
 const handleError = (stream, err) => {
   if (!err) return
+  if (err.message === 'FILE_ENDED') return
   if (err.message && err.message.indexOf('invalid signature') !== -1) {
     err = new Error('Legacy XLS files are not supported, use an XLSX file instead!')
   }
