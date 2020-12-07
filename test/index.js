@@ -58,6 +58,18 @@ describe('exceljs-transform-stream', () => {
         done()
       })
   })
+  it('stop on demand without blowing up', (done) => {
+    const file = fs.createReadStream(`${__dirname}/file.xlsx`)
+    const s = stream.pipeline(file, parse())
+    collect.array(s)
+      .then(() => {
+        done()
+      })
+      .catch((err) => {
+        done(err)
+      })
+    process.nextTick(() => s.end())
+  })
 })
 
 describe('exceljs-transform-stream#getSelectors', () => {

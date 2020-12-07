@@ -1,6 +1,7 @@
 sudo: false
 language: node_js
 node_js:
-  - "6.9.0"
-  - "7.4.0"
-  - "stable"
+  - "12"
+  - "13"
+  - "14"
+  - "15"
