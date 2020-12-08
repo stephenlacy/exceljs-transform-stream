@@ -5,6 +5,13 @@ const duplex = require('duplexify')
 const pumpify = require('pumpify')
 const { Readable, finished } = require('readable-stream')
 
+const readOpt = {
+  entries: 'emit',
+  sharedStrings: 'cache',
+  hyperlinks: 'cache',
+  styles: 'cache',
+  worksheets: 'emit'
+}
 const matchSelector = (selector, worksheet) =>
   selector.includes('*') || selector.includes(worksheet.name)
 
@@ -21,13 +28,7 @@ module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
   if (selector && !Array.isArray(selector)) selector = [ selector ]
   let isEnded = false
   const input = through()
-  const reader = new Excel.stream.xlsx.WorkbookReader(input, {
-    entries: 'emit',
-    sharedStrings: 'cache',
-    hyperlinks: 'cache',
-    styles: 'cache',
-    worksheets: 'emit'
-  })
+  const reader = new Excel.stream.xlsx.WorkbookReader(input, readOpt)
   const createReader = async function* () {
     try {
       for await (const worksheet of reader) {
@@ -66,13 +67,7 @@ module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
 module.exports.getSelectors = () => {
   let isEnded = false
   const input = through()
-  const reader = new Excel.stream.xlsx.WorkbookReader(input, {
-    entries: 'emit',
-    sharedStrings: 'cache',
-    hyperlinks: 'cache',
-    styles: 'cache',
-    worksheets: 'emit'
-  })
+  const reader = new Excel.stream.xlsx.WorkbookReader(input, readOpt)
   const createReader = async function* () {
     try {
       for await (const worksheet of reader) {
