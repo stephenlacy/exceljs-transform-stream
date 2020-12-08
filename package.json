@@ -1,6 +1,6 @@
 {
   "name": "exceljs-transform-stream",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Parse excel (XLSX) files as a through stream to JSON using exceljs",
   "main": "index.js",
   "repository": {
@@ -21,6 +21,7 @@
     "duplexify": "^4.0.0",
     "exceljs": "^4.0.0",
     "merge2": "^1.4.1",
+    "pumpify": "^2.0.1",
     "readable-stream": "^3.6.0",
     "through2": "^4.0.0"
   },

@@ -2,7 +2,8 @@
 const Excel = require('exceljs')
 const through = require('through2')
 const duplex = require('duplexify')
-const { pipeline, Readable } = require('readable-stream')
+const pumpify = require('pumpify')
+const { Readable } = require('readable-stream')
 
 const matchSelector = (selector, worksheet) =>
   selector.includes('*') || selector.includes(worksheet.name)
@@ -41,7 +42,7 @@ module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
   }
 
   let headers
-  const out = pipeline(
+  const out = pumpify.obj(
     Readable.from(createReader()),
     through.obj((row, _, cb) => {
       if (row.values.length === 0) return cb() // blank
@@ -55,10 +56,7 @@ module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
         return acc
       }, {})
       cb(null, item)
-    }),
-    (err) => {
-      if (err) out.emit('error', err)
-    }
+    })
   )
   return duplex.obj(input, out)
 }
@@ -84,12 +82,9 @@ module.exports.getSelectors = () => {
   }
   // just wrapping to map errors
   const mid = through.obj()
-  const out = pipeline(
+  const out = pumpify.obj(
     Readable.from(createReader()),
-    mid,
-    (err) => {
-      if (err) out.emit('error', err)
-    }
+    mid
   )
   process.nextTick(() => mid.push('*'))
   return duplex.obj(input, out)
