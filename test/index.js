@@ -58,7 +58,7 @@ describe('exceljs-transform-stream', () => {
         done()
       })
   })
-  it('stop on demand without blowing up', (done) => {
+  it('stop pipeline on demand without blowing up', (done) => {
     const file = fs.createReadStream(`${__dirname}/file.xlsx`)
     const s = stream.pipeline(file, parse())
     collect.array(s)
@@ -69,6 +69,15 @@ describe('exceljs-transform-stream', () => {
         done(err)
       })
     process.nextTick(() => s.end())
+  })
+  it('stop file on demand without blowing up', (done) => {
+    const file = fs.createReadStream(`${__dirname}/file.xlsx`)
+    stream.pipeline(file, parse(), (err) => {
+      should.exist(err)
+      should(err.message).equal('blow up')
+      done()
+    })
+    process.nextTick(() => file.destroy(new Error('blow up')))
   })
 })
 

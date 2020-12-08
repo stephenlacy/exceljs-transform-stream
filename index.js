@@ -7,9 +7,9 @@ const { pipeline, Readable } = require('readable-stream')
 const matchSelector = (selector, worksheet) =>
   selector.includes('*') || selector.includes(worksheet.name)
 
-const handleError = (err) => {
+const handleError = (err, isEnded) => {
   if (!err) return
-  if (err.message === 'FILE_ENDED') return
+  if (isEnded && err.message === 'FILE_ENDED') return
   if (err.message && err.message.indexOf('invalid signature') !== -1) {
     err = new Error('Legacy XLS files are not supported, use an XLSX file instead!')
   }
@@ -35,7 +35,8 @@ module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
         }
       }
     } catch (err) {
-      handleError(err)
+      const isEnded = !input.readable || !out.readable
+      handleError(err, isEnded)
     }
   }
 
@@ -77,7 +78,8 @@ module.exports.getSelectors = () => {
         yield worksheet.name
       }
     } catch (err) {
-      handleError(err)
+      const isEnded = !input.readable || !out.readable
+      handleError(err, isEnded)
     }
   }
   // just wrapping to map errors
