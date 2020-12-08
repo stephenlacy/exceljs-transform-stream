@@ -3,7 +3,7 @@ const Excel = require('exceljs')
 const through = require('through2')
 const duplex = require('duplexify')
 const pumpify = require('pumpify')
-const { Readable } = require('readable-stream')
+const { Readable, finished } = require('readable-stream')
 
 const matchSelector = (selector, worksheet) =>
   selector.includes('*') || selector.includes(worksheet.name)
@@ -19,6 +19,7 @@ const handleError = (err, isEnded) => {
 
 module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
   if (selector && !Array.isArray(selector)) selector = [ selector ]
+  let isEnded = false
   const input = through()
   const reader = new Excel.stream.xlsx.WorkbookReader(input, {
     entries: 'emit',
@@ -36,7 +37,6 @@ module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
         }
       }
     } catch (err) {
-      const isEnded = !input.readable || !out.readable
       handleError(err, isEnded)
     }
   }
@@ -58,10 +58,13 @@ module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
       cb(null, item)
     })
   )
+  finished(input, () => isEnded = true)
+  finished(out, () => isEnded = true)
   return duplex.obj(input, out)
 }
 
 module.exports.getSelectors = () => {
+  let isEnded = false
   const input = through()
   const reader = new Excel.stream.xlsx.WorkbookReader(input, {
     entries: 'emit',
@@ -76,7 +79,6 @@ module.exports.getSelectors = () => {
         yield worksheet.name
       }
     } catch (err) {
-      const isEnded = !input.readable || !out.readable
       handleError(err, isEnded)
     }
   }
@@ -86,6 +88,8 @@ module.exports.getSelectors = () => {
     Readable.from(createReader()),
     mid
   )
+  finished(input, () => isEnded = true)
+  finished(out, () => isEnded = true)
   process.nextTick(() => mid.push('*'))
   return duplex.obj(input, out)
 }

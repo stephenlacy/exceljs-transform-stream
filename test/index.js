@@ -106,4 +106,25 @@ describe('exceljs-transform-stream#getSelectors', () => {
         done()
       })
   })
+  it('stop pipeline on demand without blowing up', (done) => {
+    const file = fs.createReadStream(`${__dirname}/file.xlsx`)
+    const s = stream.pipeline(file, parse.getSelectors())
+    collect.array(s)
+      .then(() => {
+        done()
+      })
+      .catch((err) => {
+        done(err)
+      })
+    process.nextTick(() => s.end())
+  })
+  it('stop file on demand without blowing up', (done) => {
+    const file = fs.createReadStream(`${__dirname}/file.xlsx`)
+    stream.pipeline(file, parse.getSelectors(), (err) => {
+      should.exist(err)
+      should(err.message).equal('blow up')
+      done()
+    })
+    process.nextTick(() => file.destroy(new Error('blow up')))
+  })
 })
