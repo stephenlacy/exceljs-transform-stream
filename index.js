@@ -2,8 +2,7 @@
 const Excel = require('exceljs')
 const through = require('through2')
 const duplex = require('duplexify')
-const pumpify = require('pumpify')
-const { Readable, finished } = require('readable-stream')
+const { Readable, finished, pipeline } = require('readable-stream')
 
 const readOpt = {
   entries: 'emit',
@@ -43,7 +42,7 @@ module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
   }
 
   let headers
-  const out = pumpify.obj(
+  const out = pipeline(
     Readable.from(createReader()),
     through.obj((row, _, cb) => {
       if (row.values.length === 0) return cb() // blank
@@ -57,11 +56,15 @@ module.exports = ({ mapHeaders, mapValues, selector = '*' } = {}) => {
         return acc
       }, {})
       cb(null, item)
-    })
+    }),
+    (err) => {
+      isEnded = true
+      if (err) out.emit('error', err)
+    }
   )
+  const final = duplex.obj(input, out)
   finished(input, () => isEnded = true)
-  finished(out, () => isEnded = true)
-  return duplex.obj(input, out)
+  return final
 }
 
 module.exports.getSelectors = () => {
@@ -79,12 +82,16 @@ module.exports.getSelectors = () => {
   }
   // just wrapping to map errors
   const mid = through.obj()
-  const out = pumpify.obj(
+  const out = pipeline(
     Readable.from(createReader()),
-    mid
+    mid,
+    (err) => {
+      isEnded = true
+      if (err) out.emit('error', err)
+    }
   )
-  finished(input, () => isEnded = true)
-  finished(out, () => isEnded = true)
+  const final = duplex.obj(input, out)
   process.nextTick(() => mid.push('*'))
-  return duplex.obj(input, out)
+  finished(input, () => isEnded = true)
+  return final
 }
