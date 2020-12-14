@@ -1,20 +1,23 @@
 /* eslint-disable no-magic-numbers */
 const fs = require('fs')
 const should = require('should')
-const stream = require('readable-stream')
+const { pipeline } = require('readable-stream')
 const collect = require('get-stream')
 const parse = require('..')
 
+const pipe = (...s) => {
+  const out = pipeline(...s, (err) => {
+    if (err) out.emit('error', err)
+  })
+  return out
+}
 describe('exceljs-transform-stream', () => {
   it('should export a function', () => {
     should(typeof parse).equal('function')
   })
-  it('should export a function that returns a stream', () => {
-    should(parse() instanceof stream)
-  })
   it('parse xlsx files', async () => {
     const file = fs.createReadStream(`${__dirname}/file.xlsx`)
-    const res = await collect.array(file.pipe(parse()))
+    const res = await collect.array(pipe(file, parse()))
     should(res.length).equal(4)
     should(res[0]).eql({
       row: 'row1',
@@ -25,7 +28,7 @@ describe('exceljs-transform-stream', () => {
   })
   it('parse xlsx files with a specific selector', async () => {
     const file = fs.createReadStream(`${__dirname}/file.xlsx`)
-    const res = await collect.array(file.pipe(parse({ selector: 'Sheet1' })))
+    const res = await collect.array(pipe(file, parse({ selector: 'Sheet1' })))
     should(res.length).equal(4)
     should(res[0]).eql({
       row: 'row1',
@@ -36,12 +39,12 @@ describe('exceljs-transform-stream', () => {
   })
   it('parse xlsx files with a specific selector, and handle no matches', async () => {
     const file = fs.createReadStream(`${__dirname}/file.xlsx`)
-    const res = await collect.array(file.pipe(parse({ selector: 'Sheet999' })))
+    const res = await collect.array(pipe(file, parse({ selector: 'Sheet999' })))
     should(res.length).equal(0)
   })
   it('parse larger xlsx files', async () => {
     const file = fs.createReadStream(`${__dirname}/larger-file.xlsx`)
-    const res = await collect.array(file.pipe(parse()))
+    const res = await collect.array(pipe(file, parse()))
     should(res.length).eql(51000)
     should(res[0]).eql({
       Department: 'Law Enforcement',
@@ -52,15 +55,14 @@ describe('exceljs-transform-stream', () => {
   })
   it('return error if file is invalid', (done) => {
     const file = fs.createReadStream(`${__dirname}/index.js`)
-    file.pipe(parse())
-      .on('error', (e) => {
-        should(e.message).equal('Legacy XLS files are not supported, use an XLSX file instead!')
-        done()
-      })
+    pipeline(file, parse(), (err) => {
+      should(err.message).equal('Legacy XLS files are not supported, use an XLSX file instead!')
+      done()
+    })
   })
   it('stop pipeline on demand without blowing up', (done) => {
     const file = fs.createReadStream(`${__dirname}/file.xlsx`)
-    const s = stream.pipeline(file, parse())
+    const s = pipe(file, parse())
     collect.array(s)
       .then(() => {
         done()
@@ -72,7 +74,7 @@ describe('exceljs-transform-stream', () => {
   })
   it('stop file on demand without blowing up', (done) => {
     const file = fs.createReadStream(`${__dirname}/file.xlsx`)
-    stream.pipeline(file, parse(), (err) => {
+    pipeline(file, parse(), (err) => {
       should.exist(err)
       should(err.message).equal('blow up')
       done()
@@ -85,30 +87,26 @@ describe('exceljs-transform-stream#getSelectors', () => {
   it('should export a function', () => {
     should(typeof parse.getSelectors).equal('function')
   })
-  it('should export a function that returns a stream', () => {
-    should(parse.getSelectors() instanceof stream)
-  })
   it('parse xlsx files', async () => {
     const file = fs.createReadStream(`${__dirname}/file.xlsx`)
-    const res = await collect.array(file.pipe(parse.getSelectors()))
+    const res = await collect.array(pipe(file, parse.getSelectors()))
     should(res).eql([ '*', 'Sheet1' ])
   })
   it('parse larger xlsx files', async () => {
     const file = fs.createReadStream(`${__dirname}/larger-file.xlsx`)
-    const res = await collect.array(file.pipe(parse.getSelectors()))
+    const res = await collect.array(pipe(file, parse.getSelectors()))
     should(res).eql([ '*', 'Sheet1' ])
   })
   it('return error if file is invalid', (done) => {
     const file = fs.createReadStream(`${__dirname}/index.js`)
-    file.pipe(parse.getSelectors())
-      .on('error', (e) => {
-        should(e.message).equal('Legacy XLS files are not supported, use an XLSX file instead!')
-        done()
-      })
+    pipeline(file, parse.getSelectors(), (err) => {
+      should(err.message).equal('Legacy XLS files are not supported, use an XLSX file instead!')
+      done()
+    })
   })
   it('stop pipeline on demand without blowing up', (done) => {
     const file = fs.createReadStream(`${__dirname}/file.xlsx`)
-    const s = stream.pipeline(file, parse.getSelectors())
+    const s = pipe(file, parse.getSelectors())
     collect.array(s)
       .then(() => {
         done()
@@ -120,7 +118,7 @@ describe('exceljs-transform-stream#getSelectors', () => {
   })
   it('stop file on demand without blowing up', (done) => {
     const file = fs.createReadStream(`${__dirname}/file.xlsx`)
-    stream.pipeline(file, parse.getSelectors(), (err) => {
+    pipeline(file, parse.getSelectors(), (err) => {
       should.exist(err)
       should(err.message).equal('blow up')
       done()
