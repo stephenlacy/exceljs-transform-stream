@@ -53,6 +53,25 @@ describe('exceljs-transform-stream', () => {
       'Tax Dollars': 4.74
     })
   })
+
+  it('parse xlsx files with dates', async () => {
+    const file = fs.createReadStream(`${__dirname}/with-dates.xlsx`)
+    const res = await collect.array(pipe(file, parse()))
+    should(res.length).eql(2488)
+    should(res[0]).eql({
+      requestedVehicleType: 'AMB',
+      'from Zip': 90404,
+      'to Zip': 90401,
+      'Pickup Date': new Date('2019-07-01T00:00:00.000Z'),
+      'Pickup time': new Date('1899-12-30T12:40:00.000Z'),
+      finalCost: 0.5,
+      status: 'Completed',
+      passengerCost: 0.5
+    })
+    should(res.every((d) =>
+      d['Pickup Date'] instanceof Date && d['Pickup time'] instanceof Date
+    )).eql(true)
+  })
   it('return error if file is invalid', (done) => {
     const file = fs.createReadStream(`${__dirname}/index.js`)
     pipeline(file, parse(), (err) => {
