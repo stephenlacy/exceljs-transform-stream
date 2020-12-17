@@ -1,3 +1,5 @@
+> Deprecated: Package moved and renamed. Please use https://github.com/staeco/xlsx-parse-stream
+
 # exceljs-transform-stream [![Build Status](https://travis-ci.org/stevelacy/exceljs-transform-stream.svg?branch=master)](https://travis-ci.org/stevelacy/exceljs-transform-stream)
 
 > Parse excel (XLSX) files as a through stream to JSON using exceljs
